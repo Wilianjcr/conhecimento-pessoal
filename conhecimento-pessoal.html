@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conhecimento Pessoal</title>
+    <meta name="description" content="Plataforma de Autodescoberta e Perfil Comportamental">
+    <meta name="theme-color" content="#1e1b4b">
+    <link rel="manifest" href="#" id="manifest-link">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,700;9..144,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --indigo: #1e1b4b;
+            --violet: #4c1d95;
+            --purple: #7c3aed;
+            --lavender: #a78bfa;
+            --rose: #f43f5e;
+            --amber: #f59e0b;
+            --teal: #14b8a6;
+            --cream: #faf7f2;
+            --text: #1e1b4b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .display-font {
+            font-family: 'Fraunces', serif;
+        }
+
+        /* ── Noise texture overlay ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── Gradient blobs ── */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .blob-1 { width: 600px; height: 600px; background: var(--purple); top: -200px; right: -200px; }
+        .blob-2 { width: 400px; height: 400px; background: var(--teal); bottom: 0; left: -100px; }
+        .blob-3 { width: 300px; height: 300px; background: var(--rose); top: 40%; left: 30%; }
+
+        /* ── App wrapper ── */
+        #app {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 24px 16px 80px;
+        }
+
+        /* ── Global Header ── */
+        .global-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 8px;
+        }
+        .global-header h1 {
+            font-size: clamp(2rem, 6vw, 3.2rem);
+            font-weight: 900;
+            line-height: 1.05;
+            color: var(--indigo);
+            letter-spacing: -0.03em;
+        }
+        .global-header h1 span { color: var(--purple); }
+        .global-header p {
+            color: #6b7280;
+            font-size: 0.95rem;
+            margin-top: 6px;
+            font-weight: 300;
+        }
+        .header-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--indigo);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+        }
+        .header-pill-dot {
+            width: 6px; height: 6px;
+            background: var(--lavender);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+        /* ── Cards ── */
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 20px rgba(30,27,75,0.06), 0 0 0 1px rgba(30,27,75,0.05);
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        @media(max-width:480px){ .card { padding: 20px; border-radius: 16px; } }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--purple), var(--teal));
+        }
+
+        /* ── Menu cards ── */
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media(max-width:500px){ .menu-grid { grid-template-columns: 1fr; } }
+
+        .menu-card {
+            background: white;
+            border-radius: 20px;
+            padding: 28px 24px;
+            cursor: pointer;
+            border: 1.5px solid transparent;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 12px rgba(30,27,75,0.06);
+            display: flex; flex-direction: column; align-items: flex-start;
+            text-align: left;
+        }
+        .menu-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(124,58,237,0.15);
+        }
+        .menu-card-icon {
+            width: 52px; height: 52px;
+            border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+        .menu-card h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--indigo);
+            margin-bottom: 6px;
+        }
+        .menu-card p {
+            font-size: 0.85rem;
+            color: #6b7280;
+            line-height: 1.5;
+            flex: 1;
+        }
+        .menu-card-arrow {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        /* ── Inputs ── */
+        .field-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #6b7280;
+            margin-bottom: 6px;
+        }
+        .field-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e5e7eb;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem;
+            color: var(--indigo);
+            background: white;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .field-input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+        }
+        .field-input::placeholder { color: #d1d5db; }
+
+        /* ── Date input row ── */
+        .date-row { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 10px; }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: var(--indigo);
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+            letter-spacing: 0.01em;
+        }
+        .btn-primary:hover { background: var(--violet); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(30,27,75,0.25); }
+        .btn-secondary {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: transparent;
+            color: #6b7280;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 8px 0;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .btn-secondary:hover { color: var(--indigo); }
+        .btn-outline {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            background: white;
+            color: var(--indigo);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 1.5px solid #e5e7eb;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-outline:hover { border-color: var(--purple); color: var(--purple); }
+
+        /* ── Back button ── */
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: #9ca3af;
+            font-size: 0.83rem;
+            font-weight: 500;
+            background: none; border: none; cursor: pointer;
+            padding: 0; margin-bottom: 24px;
+            transition: color 0.2s;
+        }
+        .back-btn:hover { color: var(--indigo); }
+
+        /* ── Tags ── */
+        .tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        /* ── Progress bar ── */
+        .progress-wrap {
+            background: #f3f4f6;
+            border-radius: 999px;
+            height: 6px;
+            overflow: hidden;
+            margin: 10px 0 4px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--purple), var(--teal));
+            border-radius: 999px;
+            transition: width 0.5s ease;
+        }
+
+        /* ── Checkbox ── */
+        .q-item {
+            display: flex; align-items: flex-start; gap: 14px;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+            background: #fafafa;
+            margin-bottom: 8px;
+        }
+        .q-item:hover { border-color: #e5e7eb; background: white; }
+        .q-item.checked { border-color: var(--purple); background: #f5f3ff; }
+
+        .custom-cb {
+            appearance: none;
+            width: 20px; height: 20px; min-width: 20px;
+            border: 2px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            display: grid; place-content: center;
+            margin-top: 2px;
+            transition: all 0.15s;
+        }
+        .custom-cb:checked {
+            background: var(--purple);
+            border-color: var(--purple);
+        }
+        .custom-cb:checked::before {
+            content: '';
+            width: 10px; height: 10px;
+            background: white;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+
+        /* ── Result profile block ── */
+        .profile-block {
+            background: linear-gradient(135deg, var(--indigo) 0%, var(--violet) 100%);
+            border-radius: 20px;
+            padding: 28px;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .profile-block .profile-type-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0.6;
+            margin-bottom: 6px;
+        }
+        .profile-block h3 {
+            font-size: 1.7rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 10px;
+        }
+        .profile-block p { font-size: 0.9rem; opacity: 0.85; line-height: 1.6; }
+
+        /* ── Famous person grid ── */
+        .famous-grid {
+            display: flex; flex-wrap: wrap; gap: 12px;
+            margin-top: 14px;
+        }
+        .famous-item {
+            display: flex; flex-direction: column; align-items: center;
+            width: 68px;
+        }
+        .famous-avatar {
+            width: 52px; height: 52px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2.5px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            background: #e5e7eb;
+        }
+        .famous-name {
+            font-size: 0.65rem;
+            text-align: center;
+            margin-top: 5px;
+            line-height: 1.3;
+            color: inherit;
+            font-weight: 500;
+        }
+
+        /* ── Chart bars ── */
+        .chart-row {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 10px;
+        }
+        .chart-label { width: 50px; font-size: 0.8rem; text-align: right; color: #6b7280; font-weight: 600; }
+        .chart-track {
+            flex: 1;
+            height: 24px;
+            background: #f3f4f6;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .chart-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 1s ease;
+        }
+        .chart-score { width: 40px; font-size: 0.78rem; color: #9ca3af; text-align: right; }
+
+        /* ── Share card ── */
+        .share-card {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            border-radius: 16px;
+            padding: 24px;
+            color: white;
+            font-family: 'DM Sans', sans-serif;
+            margin-top: 16px;
+        }
+        .share-card h4 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; font-family: 'Fraunces', serif; }
+        .share-card p { font-size: 0.83rem; opacity: 0.75; line-height: 1.5; }
+        .share-actions { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+        .share-btn {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            transition: opacity 0.2s;
+        }
+        .share-btn:hover { opacity: 0.85; }
+
+        /* ── Geracao result ── */
+        .geracao-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+        .info-block {
+            background: #f9fafb;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 12px;
+            border-left: 4px solid transparent;
+        }
+        .info-block h5 {
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .info-block p { font-size: 0.88rem; line-height: 1.65; color: #374151; }
+
+        /* ── City info block ── */
+        .city-insight {
+            background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+            border-radius: 14px;
+            padding: 18px;
+            border: 1.5px dashed #10b981;
+            margin-bottom: 12px;
+        }
+        .city-insight h5 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #065f46; margin-bottom: 8px; }
+        .city-insight p { font-size: 0.88rem; color: #065f46; line-height: 1.6; }
+
+        /* ── PWA Install Banner ── */
+        #pwa-banner {
+            position: fixed;
+            bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--indigo);
+            color: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            max-width: 380px; width: calc(100% - 32px);
+            display: flex; align-items: center; gap: 14px;
+            box-shadow: 0 8px 32px rgba(30,27,75,0.3);
+            z-index: 100;
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp { from{transform:translateX(-50%) translateY(100px);opacity:0} to{transform:translateX(-50%) translateY(0);opacity:1} }
+        #pwa-banner .pwa-icon { font-size: 2rem; flex-shrink: 0; }
+        #pwa-banner .pwa-text h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 2px; }
+        #pwa-banner .pwa-text p { font-size: 0.75rem; opacity: 0.7; }
+        #pwa-banner .pwa-actions { display: flex; gap: 8px; margin-left: auto; flex-shrink: 0; }
+        .pwa-install-btn {
+            background: var(--lavender);
+            color: var(--indigo);
+            border: none; border-radius: 8px;
+            padding: 8px 14px; font-size: 0.78rem; font-weight: 700;
+            cursor: pointer; font-family: 'DM Sans', sans-serif;
+            white-space: nowrap;
+        }
+        .pwa-close-btn {
+            background: rgba(255,255,255,0.15);
+            color: white; border: none; border-radius: 8px;
+            width: 32px; height: 32px;
+            cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ── Toast ── */
+        #toast {
+            position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+            background: #1f2937; color: white;
+            padding: 12px 20px; border-radius: 999px;
+            font-size: 0.82rem; font-weight: 500;
+            display: flex; align-items: center; gap: 8px;
+            z-index: 200;
+            opacity: 0; transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* ── Fade in ── */
+        .screen { display: none; }
+        .screen.active { display: block; animation: fadeUp 0.35s ease; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+        /* ── Error ── */
+        .error-msg { color: #ef4444; font-size: 0.82rem; font-weight: 500; margin-top: 6px; display: none; }
+        .error-msg.show { display: block; }
+
+        /* ── Nav row in test ── */
+        .test-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1.5px solid #f3f4f6; }
+
+        /* ── Section divider ── */
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            color: #9ca3af;
+            margin: 24px 0 12px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .section-title::after {
+            content: ''; flex: 1;
+            height: 1px; background: #f3f4f6;
+        }
+
+        /* ── Result header bar ── */
+        .result-header {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            flex-wrap: wrap; gap: 12px;
+            margin-bottom: 24px; padding-bottom: 24px;
+            border-bottom: 1.5px solid #f3f4f6;
+        }
+        .result-header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        /* ── Stress/growth cards ── */
+        .dynamic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+        @media(max-width:480px){ .dynamic-grid { grid-template-columns: 1fr; } }
+        .dynamic-card {
+            border-radius: 14px; padding: 16px;
+        }
+        .dynamic-card h5 { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+        .dynamic-card p { font-size: 0.83rem; line-height: 1.55; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body, .card { background: white; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Background blobs -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+
+<!-- PWA Install Banner -->
+<div id="pwa-banner" style="display:none;">
+    <div class="pwa-icon">📱</div>
+    <div class="pwa-text">
+        <h4>Instalar App</h4>
+        <p>Adicione à tela inicial para usar offline</p>
+    </div>
+    <div class="pwa-actions">
+        <button class="pwa-install-btn" onclick="installPWA()">Instalar</button>
+        <button class="pwa-close-btn" onclick="closePWA()">✕</button>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast">✓ <span id="toast-text"></span></div>
+
+<div id="app">
+
+    <!-- Global Header -->
+    <div class="global-header no-print">
+        <div class="header-pill"><div class="header-pill-dot"></div> Autodescoberta</div>
+        <h1>Conhecimento <span>Pessoal</span></h1>
+        <p>Plataforma de Perfil Comportamental &amp; Geracional</p>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCREEN: MENU -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="screen-menu" class="screen active">
+        <div class="menu-grid">
+            <div class="menu-card" onclick="showScreen('screen-eneagrama-intro')">
+                <div class="menu-card-icon" style="background:#ede9fe;">🔮</div>
+                <h3>Teste de Eneagrama</h3>
+                <p>Mapeamento de personalidade em 9 perfis. Descubra motivações, estresse e crescimento.</p>
+                <div class="menu-card-arrow" style="color:var(--purple);">Começar <span>→</span></div>
+            </div>
+            <div class="menu-card" onclick="showScreen('screen-geracao-intro')">
+                <div class="menu-card-icon" style="background:#fef3c7;">📅</div>
+                <h3>Análise de Geração</h3>
+                <p>Baby Boomer, X, Y, Z, Alpha ou Beta. Descubra contexto histórico e tendências da sua geração.</p>
+                <div class="menu-card-arrow" style="color:#d97706;">Começar <span>→</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCREEN: GERAÇÃO INTRO -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="screen-geracao-intro" class="screen">
+        <div class="card">
+            <button class="back-btn no-print" onclick="showScreen('screen-menu')">← Voltar</button>
+            <h2 style="font-size:1.5rem;font-weight:900;color:var(--indigo);margin-bottom:6px;">Descubra sua Geração</h2>
+            <p style="color:#6b7280;font-size:0.88rem;margin-bottom:28px;">Preencha os dados para receber sua análise geracional personalizada com dados históricos e culturais.</p>
+
+            <div style="margin-bottom:16px;">
+                <label class="field-label">Nome</label>
+                <input type="text" id="g-nome" class="field-input" placeholder="Seu nome completo">
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <label class="field-label">Cidade de Nascimento</label>
+                <input type="text" id="g-cidade" class="field-input" placeholder="Ex: São Paulo, Belo Horizonte…">
+                <p style="font-size:0.75rem;color:#9ca3af;margin-top:4px;">Usamos para cruzar dados histórico-culturais da sua região.</p>
+            </div>
+
+            <div style="margin-bottom:24px;">
+                <label class="field-label">Data de Nascimento</label>
+                <div class="date-row">
+                    <div>
+                        <input type="text" id="g-dia" class="field-input" placeholder="Dia" maxlength="2" inputmode="numeric"
+                               oninput="maskDate(this,2,'g-mes')" style="text-align:center;">
+                    </div>
+                    <div>
+                        <input type="text" id="g-mes" class="field-input" placeholder="Mês" maxlength="2" inputmode="numeric"
+                               oninput="maskDate(this,2,'g-ano')" style="text-align:center;">
+                    </div>
+                    <div>
+                        <input type="text" id="g-ano" class="field-input" placeholder="Ano" maxlength="4" inputmode="numeric"
+                               style="text-align:center;">
+                    </div>
+                </div>
+                <p id="g-date-error" class="error-msg">Data inválida. Verifique dia, mês e ano.</p>
+            </div>
+
+            <p id="g-error" class="error-msg">Preencha todos os campos obrigatórios.</p>
+            <button class="btn-primary" onclick="startGeracao()">Analisar minha Geração →</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCREEN: GERAÇÃO RESULTADO -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="screen-geracao-result" class="screen">
+        <div class="card">
+            <div class="result-header no-print">
+                <div>
+                    <button class="back-btn" style="margin-bottom:6px;" onclick="showScreen('screen-geracao-intro')">← Nova Consulta</button>
+                    <button class="back-btn" style="margin-left:12px;margin-bottom:6px;" onclick="showScreen('screen-menu')">⌂ Menu</button>
+                </div>
+                <div class="result-header-actions">
+                    <button class="btn-outline" onclick="window.print()">🖨 Imprimir</button>
+                </div>
+            </div>
+
+            <div id="geracao-result-body"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCREEN: ENEAGRAMA INTRO -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="screen-eneagrama-intro" class="screen">
+        <div class="card">
+            <button class="back-btn no-print" onclick="showScreen('screen-menu')">← Voltar</button>
+
+            <div style="background:#f5f3ff;border-radius:14px;padding:18px;margin-bottom:24px;border-left:4px solid var(--purple);">
+                <h4 style="font-size:0.9rem;font-weight:700;color:var(--violet);margin-bottom:8px;">Como fazer o teste?</h4>
+                <ul style="font-size:0.83rem;color:#4b5563;line-height:1.7;padding-left:18px;">
+                    <li>Responda pensando em como você <em>realmente age</em>, não como gostaria de agir.</li>
+                    <li>São 9 etapas. Marque só as afirmações com que se identificar fortemente.</li>
+                    <li>Seja honesto(a) — o resultado reflete sua sinceridade.</li>
+                </ul>
+            </div>
+
+            <h2 style="font-size:1.5rem;font-weight:900;color:var(--indigo);margin-bottom:20px;">Seus dados</h2>
+
+            <div style="margin-bottom:16px;">
+                <label class="field-label">Nome Completo</label>
+                <input type="text" id="e-nome" class="field-input" placeholder="Seu nome">
+            </div>
+            <div style="margin-bottom:24px;">
+                <label class="field-label">Vaga / Setor</label>
+                <input type="text" id="e-vaga" class="field-input" placeholder="Ex: Analista de TI">
+            </div>
+
+            <p id="e-error" class="error-msg">Preencha todos os campos.</p>
+            <button class="btn-primary" onclick="startEneagrama()">Iniciar Teste →</button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCREEN: ENEAGRAMA TESTE -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="screen-test" class="screen">
+        <!-- Sticky header -->
+        <div style="background:white;border-radius:16px;padding:16px 20px;margin-bottom:12px;box-shadow:0 2px 12px rgba(30,27,75,0.07);position:sticky;top:8px;z-index:20;" class="no-print">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div>
+                    <div style="font-weight:700;font-size:0.95rem;color:var(--indigo);" id="t-nome"></div>
+                    <div style="font-size:0.78rem;color:#9ca3af;" id="t-vaga"></div>
+                </div>
+                <div style="background:#ede9fe;color:var(--violet);font-size:0.78rem;font-weight:700;padding:4px 12px;border-radius:999px;" id="t-count">0 marcadas</div>
+            </div>
+            <div class="progress-wrap"><div class="progress-fill" id="t-progress" style="width:11%"></div></div>
+            <div style="font-size:0.72rem;color:#9ca3af;text-align:right;margin-top:4px;">Etapa <span id="t-step">1</span> de 9</div>
+        </div>
+
+        <div class="card">
+            <p style="font-size:0.85rem;color:#6b7280;font-weight:500;margin-bottom:18px;padding-bottom:14px;border-bottom:1.5px solid #f3f4f6;">Marque as afirmações que descrevem como você <strong>age ou se sente na maior parte do tempo</strong>:</p>
+            <div id="q-container"></div>
+
+            <div class="test-nav no-print">
+                <button class="btn-secondary" id="btn-prev" onclick="prevStep()" style="display:none;">← Anterior</button>
+                <div style="flex:1"></div>
+                <button class="btn-primary" id="btn-next" onclick="nextStep()" style="width:auto;padding:12px 28px;">Próximo →</button>
+                <button class="btn-primary" id="btn-finish" onclick="calculateResults()" style="display:none;width:auto;padding:12px 28px;background:var(--teal);">✓ Concluir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCREEN: ENEAGRAMA RESULTADO -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="screen-result" class="screen">
+        <div class="card">
+            <div class="result-header no-print">
+                <div>
+                    <button class="back-btn" style="margin-bottom:6px;" onclick="showScreen('screen-eneagrama-intro')">← Novo Teste</button>
+                    <button class="back-btn" style="margin-left:12px;margin-bottom:6px;" onclick="showScreen('screen-menu')">⌂ Menu</button>
+                </div>
+                <div class="result-header-actions">
+                    <button class="btn-outline" onclick="window.print()">🖨 Imprimir</button>
+                </div>
+            </div>
+
+            <div id="result-nome-label" style="margin-bottom:4px;font-size:0.82rem;color:#9ca3af;">Resultado de</div>
+            <h2 id="result-nome-h" style="font-size:1.6rem;font-weight:900;color:var(--indigo);margin-bottom:2px;"></h2>
+            <p id="result-vaga-p" style="font-size:0.85rem;color:#6b7280;margin-bottom:24px;"></p>
+
+            <div id="dominant-container"></div>
+
+            <div class="section-title">Gráfico Geral</div>
+            <div id="chart-container"></div>
+
+            <div id="share-section" class="no-print"></div>
+
+            <div style="text-align:center;margin-top:28px;padding-top:20px;border-top:1.5px solid #f3f4f6;" class="no-print">
+                <button class="back-btn" onclick="showScreen('screen-eneagrama-intro')">← Realizar novo teste</button>
+                <span style="color:#e5e7eb;margin:0 8px;">|</span>
+                <button class="back-btn" onclick="showScreen('screen-menu')">⌂ Menu Principal</button>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════════════
+// DATE MASK
+// ══════════════════════════════════════════════
+function maskDate(el, maxLen, nextId) {
+    el.value = el.value.replace(/\D/g, '');
+    if (el.value.length >= maxLen && nextId) {
+        document.getElementById(nextId).focus();
+    }
+}
+
+function parseDateInputs(diaId, mesId, anoId) {
+    const dia = parseInt(document.getElementById(diaId).value);
+    const mes = parseInt(document.getElementById(mesId).value);
+    const ano = parseInt(document.getElementById(anoId).value);
+
+    if (!dia || !mes || !ano) return null;
+    if (dia < 1 || dia > 31) return null;
+    if (mes < 1 || mes > 12) return null;
+    if (ano < 1920 || ano > 2030) return null;
+
+    const d = new Date(ano, mes - 1, dia);
+    if (d.getMonth() !== mes - 1) return null; // invalid day for month
+    return { dia, mes, ano, date: d };
+}
+
+// ══════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-text').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function copyText(text) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => showToast('Copiado! Cole onde quiser.'));
+    } else {
+        const ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Copiado!');
+    }
+}
+
+function shareText(text) {
+    if (navigator.share) {
+        navigator.share({ title: 'Conhecimento Pessoal', text }).catch(() => {});
+    } else {
+        copyText(text);
+    }
+}
+
+// ══════════════════════════════════════════════
+// PWA
+// ══════════════════════════════════════════════
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!sessionStorage.getItem('pwa-dismissed')) {
+        setTimeout(() => {
+            document.getElementById('pwa-banner').style.display = 'flex';
+        }, 3000);
+    }
+});
+
+function installPWA() {
+    document.getElementById('pwa-banner').style.display = 'none';
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+    } else {
+        showToast('Para instalar: Menu do navegador → "Adicionar à tela inicial"');
+    }
+}
+
+function closePWA() {
+    document.getElementById('pwa-banner').style.display = 'none';
+    sessionStorage.setItem('pwa-dismissed', '1');
+}
+
+// Inject manifest dynamically
+const manifestData = {
+    name: "Conhecimento Pessoal",
+    short_name: "ConhecPessoal",
+    description: "Plataforma de Autodescoberta e Perfil Comportamental",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#faf7f2",
+    theme_color: "#1e1b4b",
+    icons: [{ src: "https://ui-avatars.com/api/?name=CP&background=1e1b4b&color=fff&size=192", sizes: "192x192", type: "image/png" }]
+};
+const blob = new Blob([JSON.stringify(manifestData)], { type: 'application/json' });
+document.getElementById('manifest-link').href = URL.createObjectURL(blob);
+
+// ══════════════════════════════════════════════
+// CITY INSIGHTS DATABASE (simplified)
+// ══════════════════════════════════════════════
+const cidadeInsights = {
+    "são paulo": { contexto: "São Paulo viveu uma intensa industrialização no período que molda quem cresceu aqui. Sua geração, em São Paulo, foi profundamente influenciada pela cultura multicultural da metrópole, pelo ritmo acelerado e pela mistura de influências europeias, nordestinas e globais." },
+    "sao paulo": { contexto: "São Paulo viveu uma intensa industrialização no período que molda quem cresceu aqui. Sua geração, em São Paulo, foi profundamente influenciada pela cultura multicultural da metrópole, pelo ritmo acelerado e pela mistura de influências europeias, nordestinas e globais." },
+    "rio de janeiro": { contexto: "No Rio de Janeiro, sua geração cresceu entre a efervescência cultural do Carnaval, o movimento tropicalista e as transformações sociais que tornaram a cidade símbolo cultural do Brasil — uma mistura única de alegria e desigualdade que molda perspectivas de forma singular." },
+    "belo horizonte": { contexto: "Em Belo Horizonte, cidade planejada que cresceu rapidamente, sua geração vivenciou a transição de uma cidade de interior para metrópole, com forte influência da mineiridade — valores como hospitalidade, conservadorismo equilibrado com inovação e profunda identidade regional." },
+    "brasília": { contexto: "Crescer em Brasília significa viver no epicentro do poder político do Brasil. Sua geração foi moldada pela atmosfera única da capital, pela convivência com diversidade cultural extrema (vindos de todos os estados) e pela percepção direta das mudanças políticas do país." },
+    "salvador": { contexto: "Em Salvador, berço da cultura afro-brasileira, sua geração foi formada pela riqueza cultural única do axé, do candomblé, do carnaval de rua e de uma identidade negra forte e resistente — um contexto que oferece uma visão de mundo profundamente humanista e coletiva." },
+    "porto alegre": { contexto: "Porto Alegre e o Rio Grande do Sul imprimem em sua geração valores gaúchos de orgulho regional, forte identidade cultural europeia (especialmente italiana e alemã) e um senso de comunidade e tradição bastante marcado, além do espírito empreendedor da região Sul." },
+    "curitiba": { contexto: "Curitiba, conhecida pela qualidade de vida e planejamento urbano, moldou sua geração com valores de organização, inovação em políticas públicas e uma perspectiva europeia (especialmente polonesa e ucraniana) que cria uma identidade única no Brasil." },
+    "fortaleza": { contexto: "Em Fortaleza e no Nordeste, sua geração cresceu com a forte cultura da resistência, da criatividade popular (forró, literatura de cordel, artesanato) e de um senso de comunidade profundo, num contexto de superação das desigualdades históricas." },
+    "manaus": { contexto: "Crescer em Manaus, no coração da Amazônia, significa ter uma relação única com a natureza, a biodiversidade e a cultura dos povos amazônicos. Sua geração viveu as contradições da Zona Franca, o isolamento geográfico que forja resiliência e uma identidade amazônica singular." },
+    "default": { contexto: "Sua cidade de nascimento, como toda cidade brasileira, tem uma história única que entrelaça com o contexto geracional. As características locais — economia, cultura, migração e desenvolvimento — certamente moldaram perspectivas e valores de forma específica, complementando as tendências da sua geração." }
+};
+
+function getCidadeInsight(cidade) {
+    if (!cidade) return null;
+    const key = cidade.toLowerCase().trim();
+    for (const k of Object.keys(cidadeInsights)) {
+        if (k !== 'default' && key.includes(k)) return cidadeInsights[k];
+    }
+    return cidadeInsights['default'];
+}
+
+// ══════════════════════════════════════════════
+// GERAÇÃO DATA
+// ══════════════════════════════════════════════
+const dadosGeracoes = {
+    silenciosa: {
+        nome: "Geração Silenciosa", periodo: "1928–1945",
+        cor: "#64748b", bgCor: "#f8fafc",
+        essencia: "Pautada pelo dever, respeito à hierarquia, trabalho duro e conformidade.",
+        historia: "Cresceram durante a Grande Depressão e a Segunda Guerra Mundial. Foram chamados de 'silenciosos' porque focaram em reconstruir o mundo e trabalhar duro, sem questionar o sistema.",
+        caracteristicas: "Práticos, econômicos, acreditam na lei e na ordem, valorizam emprego para toda a vida.",
+        curiosidade: "Fundaram e estruturaram o sistema corporativo e bancário moderno. A transição da máquina de escrever manual para as primeiras elétricas foi uma de suas grandes inovações em escritório.",
+        futuro: "São uma ponte viva para a história do século XX — guardiões de uma sabedoria que a aceleração digital tende a apagar.",
+        shareEmoji: "🕊️"
+    },
+    boomer: {
+        nome: "Baby Boomer", periodo: "1946–1964",
+        cor: "#4f46e5", bgCor: "#eef2ff",
+        essencia: "Otimistas, dedicados e pioneiros do consumismo moderno e dos direitos civis.",
+        historia: "O nome vem da explosão populacional após a 2ª Guerra. Cresceram durante a Guerra Fria, Guerra do Vietnã e a chegada do homem à Lua. Viram a popularização da televisão.",
+        caracteristicas: "Muitas vezes 'workaholics', definem valor pessoal pela carreira e conquistas financeiras. Valorizam estabilidade e lealdade corporativa.",
+        curiosidade: "Criaram o Rock and Roll e a contracultura (Woodstock), mas na vida adulta tornaram-se executivos muito rígidos com o sucesso e a hierarquia.",
+        futuro: "Inventores do conceito de 'Aposentadoria' como período de lazer e consumo — um legado que gerações futuras estão repensando.",
+        shareEmoji: "🎸"
+    },
+    x: {
+        nome: "Geração X", periodo: "1965–1980",
+        cor: "#0d9488", bgCor: "#f0fdfa",
+        essencia: "Independentes, céticos e a ponte entre o mundo analógico e o digital.",
+        historia: "Conhecida como 'geração esquecida' ou 'geração chave-de-casa' (ambos os pais passaram a trabalhar fora). Cresceram com a MTV, a queda do Muro de Berlim e a epidemia de AIDS.",
+        caracteristicas: "Extremamente independentes, não gostam de microgerenciamento. Céticos em relação a governos e corporações. Buscam equilíbrio entre trabalho e vida pessoal.",
+        curiosidade: "Viveram a maior transição tecnológica: nasceram brincando na rua com fitas K7, mas entraram no mercado de trabalho tendo que aprender internet discada e Windows.",
+        futuro: "Atualmente formam a grande liderança executiva das empresas tradicionais, sendo o elo entre mentalidades analógica e digital.",
+        shareEmoji: "📼"
+    },
+    y: {
+        nome: "Millennials (Geração Y)", periodo: "1981–1996",
+        cor: "#2563eb", bgCor: "#eff6ff",
+        essencia: "Conectados, questionadores, focados em propósito e nativos da transição digital.",
+        historia: "Viram a virada do milênio, a popularização da internet e o 11 de Setembro. Entraram no mercado durante ou após a crise de 2008, o que moldou profundamente suas finanças.",
+        caracteristicas: "Não querem trabalhar apenas por dinheiro, buscam propósito. Questionam modelos antigos. Primeiros a abraçar redes sociais (Orkut, Facebook).",
+        curiosidade: "São a última geração a lembrar claramente como era o mundo ANTES da internet no bolso. Inventaram a cultura das startups e o trabalho flexível.",
+        futuro: "Hoje a maior força de trabalho global — enfrentam os desafios de liderar equipes, comprar imóveis num mercado inflacionado e equilibrar saúde mental.",
+        shareEmoji: "💻"
+    },
+    z: {
+        nome: "Geração Z", periodo: "1997–2012",
+        cor: "#7c3aed", bgCor: "#f5f3ff",
+        essencia: "Nativos digitais absolutos, pragmáticos, focados em diversidade e hiperconectados.",
+        historia: "Não conhecem o mundo sem internet rápida, smartphones e redes sociais. Entrada no mercado impactada fortemente pela pandemia de Covid-19.",
+        caracteristicas: "Preferem comunicação rápida (TikTok). Realistas sobre dinheiro e carreira. Exigem que empresas tenham responsabilidade social e ambiental real.",
+        curiosidade: "Maior taxa de autoeducação via tutoriais. A geração que mais fala abertamente sobre terapia, ansiedade e limites psicológicos no trabalho.",
+        futuro: "Estão forçando uma revolução no ambiente de trabalho: não aceitam cultura do 'trabalhe enquanto eles dormem', preferindo limites claros e salários justos.",
+        shareEmoji: "📱"
+    },
+    alpha: {
+        nome: "Geração Alpha", periodo: "2013–2024",
+        cor: "#059669", bgCor: "#ecfdf5",
+        essencia: "Nativos de Inteligência Artificial, imersos em telas desde o berço e altamente globais.",
+        historia: "O início da geração coincide com o lançamento do iPad. Passaram a primeira infância com o isolamento da pandemia. A IA (Alexa, ChatGPT) é tão natural para eles quanto a eletricidade.",
+        caracteristicas: "Aprenderão de forma hiperpersonalizada com IAs tutoras. Menor contato físico clássico, mas conectividade global instantânea. Altamente criativos com desafios de foco.",
+        curiosidade: "É a geração mais protegida materialmente da história. Muitas crianças Alpha sabem fazer 'swipe' em telas antes mesmo de aprender a falar.",
+        futuro: "Quando entrarem no mercado (anos 2030+), trabalharão em sustentabilidade climática avançada, gestão de dados neurais e como 'arquitetos' de ecossistemas de IA.",
+        shareEmoji: "🤖"
+    },
+    beta: {
+        nome: "Geração Beta", periodo: "2025–2039",
+        cor: "#db2777", bgCor: "#fdf2f8",
+        essencia: "A primeira geração da era da IA Geral, biotecnologia e possível era interplanetária.",
+        historia: "Nascendo no momento em que a IA atinge inteligência geral humana (AGI) e robôs humanóides entram na rotina doméstica. A crise climática é a pauta mais urgente do planeta.",
+        caracteristicas: "Não distinguirão 'mundo real' de 'mundo virtual'. Realidade mista e interfaces cérebro-computador farão parte do cotidiano de saúde e educação.",
+        curiosidade: "O retorno à Lua e as missões para Marte (Artemis/SpaceX) serão fatos comuns em sua infância, tornando a visão de 'civilização multiplanetária' algo banal.",
+        futuro: "Não memorizarão dados nem criarão códigos básicos — aprenderão a filosofar e orientar éticas de máquinas. Viverão em média além dos 100 anos graças à biogenética.",
+        shareEmoji: "🚀"
+    }
+};
+
+function getGeracaoKey(ano) {
+    if (ano <= 1945) return 'silenciosa';
+    if (ano <= 1964) return 'boomer';
+    if (ano <= 1980) return 'x';
+    if (ano <= 1996) return 'y';
+    if (ano <= 2012) return 'z';
+    if (ano <= 2024) return 'alpha';
+    return 'beta';
+}
+
+function startGeracao() {
+    const nome = document.getElementById('g-nome').value.trim();
+    const cidade = document.getElementById('g-cidade').value.trim();
+    const dateErr = document.getElementById('g-date-error');
+    const mainErr = document.getElementById('g-error');
+
+    dateErr.classList.remove('show');
+    mainErr.classList.remove('show');
+
+    const parsed = parseDateInputs('g-dia', 'g-mes', 'g-ano');
+
+    if (!nome) { mainErr.classList.add('show'); return; }
+    if (!parsed) { dateErr.classList.add('show'); return; }
+
+    const { ano, date } = parsed;
+    const hoje = new Date();
+    let idade = hoje.getFullYear() - ano;
+    if (hoje.getMonth() < date.getMonth() || (hoje.getMonth() === date.getMonth() && hoje.getDate() < date.getDate())) idade--;
+
+    const key = getGeracaoKey(ano);
+    const g = dadosGeracoes[key];
+    const cityData = getCidadeInsight(cidade);
+
+    // Build share text
+    const shareMsg = `${g.shareEmoji} Descobri no Conhecimento Pessoal que sou da ${g.nome}!\n\nEssência: "${g.essencia}"\n\nDescubra a sua geração também! 🌟`;
+
+    const body = document.getElementById('geracao-result-body');
+    body.innerHTML = `
+        <div style="margin-bottom:24px;">
+            <span class="geracao-badge" style="background:${g.bgCor};color:${g.cor};">${g.nome}</span>
+            <h2 style="font-size:1.8rem;font-weight:900;color:var(--indigo);line-height:1.1;margin-bottom:6px;">${nome}</h2>
+            <p style="color:#6b7280;font-size:0.88rem;">Nascimento: ${parsed.dia}/${parsed.mes}/${ano} &bull; ${idade >= 0 ? idade + ' anos' : 'Ainda não nasceu'} &bull; ${cidade || 'Brasil'}</p>
+        </div>
+
+        <div style="background:linear-gradient(135deg,${g.cor}15,${g.cor}08);border-left:4px solid ${g.cor};border-radius:14px;padding:20px;margin-bottom:20px;">
+            <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:${g.cor};margin-bottom:4px;">Período: ${g.periodo}</div>
+            <p style="font-size:1rem;color:#1e1b4b;font-style:italic;line-height:1.6;">"${g.essencia}"</p>
+        </div>
+
+        ${cityData ? `
+        <div class="city-insight">
+            <h5>📍 Cruzamento com ${cidade || 'sua cidade'}</h5>
+            <p>${cityData.contexto}</p>
+        </div>` : ''}
+
+        <div class="info-block" style="border-color:${g.cor}40;">
+            <h5>📜 <span style="color:${g.cor};">Contexto Histórico</span></h5>
+            <p>${g.historia}</p>
+        </div>
+        <div class="info-block" style="border-color:${g.cor}40;">
+            <h5>🧠 <span style="color:${g.cor};">Características & Comportamento</span></h5>
+            <p>${g.caracteristicas}</p>
+        </div>
+        <div class="info-block" style="border-color:#f59e0b40;background:#fffbeb;">
+            <h5>🔍 <span style="color:#d97706;">Fato Curioso</span></h5>
+            <p style="color:#78350f;">${g.curiosidade}</p>
+        </div>
+        <div class="info-block" style="border-color:#7c3aed40;background:#f5f3ff;">
+            <h5>🚀 <span style="color:#7c3aed;">Visão de Futuro</span></h5>
+            <p style="color:#4c1d95;">${g.futuro}</p>
+        </div>
+
+        <div class="share-card no-print">
+            <h4>${g.shareEmoji} Compartilhe seu resultado</h4>
+            <p style="margin-bottom:0;margin-top:8px;font-size:0.8rem;background:rgba(255,255,255,0.08);padding:10px;border-radius:8px;font-family:monospace;">${shareMsg}</p>
+            <div class="share-actions">
+                <button class="share-btn" style="background:#25d366;color:white;" onclick="shareText(\`${shareMsg.replace(/`/g, '\\`')}\`)">📲 WhatsApp</button>
+                <button class="share-btn" style="background:#3b5998;color:white;" onclick="shareText(\`${shareMsg.replace(/`/g, '\\`')}\`)">📘 Compartilhar</button>
+                <button class="share-btn" style="background:#334155;color:white;" onclick="copyText(\`${shareMsg.replace(/`/g, '\\`')}\`)">📋 Copiar texto</button>
+            </div>
+        </div>
+    `;
+
+    showScreen('screen-geracao-result');
+}
+
+// ══════════════════════════════════════════════
+// ENEAGRAMA DATA
+// ══════════════════════════════════════════════
+const perfis = {
+    1: {
+        titulo: "Tipo 1 — O Perfeccionista",
+        cor: "#dc2626",
+        descricao: "Busca a perfeição, é ético, organizado e altamente crítico (especialmente consigo mesmo).",
+        famosos: [
+            { nome: "Gandhi", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Portrait_Gandhi.jpg/200px-Portrait_Gandhi.jpg" },
+            { nome: "Mandela", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Nelson_Mandela_1994.jpg/200px-Nelson_Mandela_1994.jpg" },
+            { nome: "Steve Jobs", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f5/Steve_Jobs_Headshot_2010-CROP2.jpg/200px-Steve_Jobs_Headshot_2010-CROP2.jpg" }
+        ],
+        integra: 7, integraTexto: "torna-se mais alegre, produtivo, tolerante e foca no bem de forma inspiradora.",
+        desintegra: 4, desintegraTexto: "torna-se melancólico, rígido, julgador e sente-se vitimizado."
+    },
+    2: {
+        titulo: "Tipo 2 — O Prestativo",
+        cor: "#ea580c",
+        descricao: "Focado nas necessidades dos outros, generoso e busca aprovação através da ajuda.",
+        famosos: [
+            { nome: "Madre Teresa", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d6/Mother_Teresa_1.jpg/200px-Mother_Teresa_1.jpg" },
+            { nome: "Lady Diana", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Diana%2C_Princess_of_Wales_1997_%282%29.jpg/200px-Diana%2C_Princess_of_Wales_1997_%282%29.jpg" },
+            { nome: "Elvis", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Elvis_Presley_promoting_Jailhouse_Rock.jpg/200px-Elvis_Presley_promoting_Jailhouse_Rock.jpg" }
+        ],
+        integra: 4, integraTexto: "torna-se mais autêntico, consciente de suas próprias necessidades e ajuda sem cobrar.",
+        desintegra: 8, desintegraTexto: "torna-se controlador, agressivo e cobra incisivamente o afeto doado."
+    },
+    3: {
+        titulo: "Tipo 3 — O Realizador",
+        cor: "#ca8a04",
+        descricao: "Focado em metas, eficiência e imagem. Quer ser visto como vencedor.",
+        famosos: [
+            { nome: "Oprah", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Oprah_in_2014.jpg/200px-Oprah_in_2014.jpg" },
+            { nome: "C. Ronaldo", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Cristiano_Ronaldo_playing_for_Al_Nassr_FC_against_Persepolis%2C_September_2023_%28cropped%29.jpg/200px-Cristiano_Ronaldo_playing_for_Al_Nassr_FC_against_Persepolis%2C_September_2023_%28cropped%29.jpg" },
+            { nome: "Silvio Santos", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Silvio_Santos_em_maio_de_2019.jpg/200px-Silvio_Santos_em_maio_de_2019.jpg" }
+        ],
+        integra: 6, integraTexto: "torna-se excelente em equipe, leal e menos focado na própria vaidade.",
+        desintegra: 9, desintegraTexto: "torna-se apático, desengajado e perde o foco em suas metas."
+    },
+    4: {
+        titulo: "Tipo 4 — O Individualista",
+        cor: "#7c3aed",
+        descricao: "Profundo, autêntico, criativo e sensível. Foca com intensidade naquilo que falta em sua vida.",
+        famosos: [
+            { nome: "Frida Kahlo", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Frida_Kahlo%2C_by_Guillermo_Kahlo.jpg/200px-Frida_Kahlo%2C_by_Guillermo_Kahlo.jpg" },
+            { nome: "M. Jackson", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Michael_Jackson_in_1988.jpg/200px-Michael_Jackson_in_1988.jpg" },
+            { nome: "Edgar Poe", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Edgar_Allan_Poe%2C_circa_1849%2C_restored%2C_squared_off.jpg/200px-Edgar_Allan_Poe%2C_circa_1849%2C_restored%2C_squared_off.jpg" }
+        ],
+        integra: 1, integraTexto: "torna-se disciplinado, objetivo e coloca suas grandes ideias criativas em prática.",
+        desintegra: 2, desintegraTexto: "torna-se carente, dependente emocionalmente e cria dramas para chamar atenção."
+    },
+    5: {
+        titulo: "Tipo 5 — O Investigador",
+        cor: "#0369a1",
+        descricao: "Intelectual, reservado, analítico e curioso. Preserva intensamente sua energia e tempo.",
+        famosos: [
+            { nome: "Einstein", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Einstein_1921_by_F_Schmutzer_-_restoration.jpg/200px-Einstein_1921_by_F_Schmutzer_-_restoration.jpg" },
+            { nome: "Bill Gates", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Bill_Gates_2018.jpg/200px-Bill_Gates_2018.jpg" },
+            { nome: "Zuckerberg", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Mark_Zuckerberg_F8_2019_Keynote_%2832830578717%29_%28cropped%29.jpg/200px-Mark_Zuckerberg_F8_2019_Keynote_%2832830578717%29_%28cropped%29.jpg" }
+        ],
+        integra: 8, integraTexto: "torna-se líder assertivo e confiante, levando sua sabedoria ao mundo real.",
+        desintegra: 7, desintegraTexto: "torna-se disperso, cínico e foge da dor buscando distrações."
+    },
+    6: {
+        titulo: "Tipo 6 — O Leal",
+        cor: "#0d9488",
+        descricao: "Vive em dúvidas. Foca na segurança, prever problemas e manter lealdade ao grupo.",
+        famosos: [
+            { nome: "Tom Hanks", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Tom_Hanks_TIFF_2019.jpg/200px-Tom_Hanks_TIFF_2019.jpg" },
+            { nome: "Obama", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/President_Barack_Obama.jpg/200px-President_Barack_Obama.jpg" },
+            { nome: "Lula", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Luiz_In%C3%A1cio_Lula_da_Silva_em_abril_de_2024.jpg/200px-Luiz_In%C3%A1cio_Lula_da_Silva_em_abril_de_2024.jpg" }
+        ],
+        integra: 9, integraTexto: "torna-se corajoso, sereno e grande construtor de comunidades sólidas.",
+        desintegra: 3, desintegraTexto: "torna-se competitivo, ansioso com a imagem e pode recorrer a meias-verdades."
+    },
+    7: {
+        titulo: "Tipo 7 — O Entusiasta",
+        cor: "#d97706",
+        descricao: "Otimista, agitado, criativo e versátil. Busca prazer e aventuras para evitar lidar com a dor.",
+        famosos: [
+            { nome: "Robin Williams", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Robin_Williams_2011a_%28cropped%29.jpg/200px-Robin_Williams_2011a_%28cropped%29.jpg" },
+            { nome: "Mozart", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/Wolfgang-amadeus-mozart_1.jpg/200px-Wolfgang-amadeus-mozart_1.jpg" },
+            { nome: "Jim Carrey", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Jim_Carrey_2008.jpg/200px-Jim_Carrey_2008.jpg" }
+        ],
+        integra: 5, integraTexto: "torna-se calmo, focado e alcança grande profundidade naquilo que faz.",
+        desintegra: 1, desintegraTexto: "torna-se rígido, crítico e impaciente ao extremo de forma punitiva."
+    },
+    8: {
+        titulo: "Tipo 8 — O Desafiador",
+        cor: "#be123c",
+        descricao: "Forte, assertivo, protetor e direto. Evita demonstrar fraqueza ou ser controlado.",
+        famosos: [
+            { nome: "M.L. King", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Martin_Luther_King%2C_Jr..jpg/200px-Martin_Luther_King%2C_Jr..jpg" },
+            { nome: "Picasso", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Pablo_picasso_1.jpg/200px-Pablo_picasso_1.jpg" },
+            { nome: "Trump", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/200px-Donald_Trump_official_portrait.jpg" }
+        ],
+        integra: 2, integraTexto: "torna-se magnânimo, amoroso e usa sua força para proteger os vulneráveis.",
+        desintegra: 5, desintegraTexto: "torna-se fechado, isolado, paranoico e extremamente calculista."
+    },
+    9: {
+        titulo: "Tipo 9 — O Pacificador",
+        cor: "#047857",
+        descricao: "Calmo, mediador, tranquilo. Evita conflitos e frequentemente anula a própria vontade pelo grupo.",
+        famosos: [
+            { nome: "Obama", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/President_Barack_Obama.jpg/200px-President_Barack_Obama.jpg" },
+            { nome: "Dalai Lama", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Dalai_Lama_1430_thl.jpg/200px-Dalai_Lama_1430_thl.jpg" },
+            { nome: "Walt Disney", img: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/Walt_Disney_1946.JPG/200px-Walt_Disney_1946.JPG" }
+        ],
+        integra: 3, integraTexto: "desperta, ganha energia e torna-se grande realizador focado em metas.",
+        desintegra: 6, desintegraTexto: "torna-se ansioso, duvidoso e paralisado por preocupações irreais."
+    }
+};
+
+function famousHtml(famosos, style = '') {
+    return '<div class="famous-grid">' + famosos.map(f => `
+        <div class="famous-item">
+            <img class="famous-avatar" src="${f.img}" alt="${f.nome}"
+                 onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(f.nome)}&background=e5e7eb&color=374151&size=100'" style="${style}">
+            <span class="famous-name">${f.nome}</span>
+        </div>
+    `).join('') + '</div>';
+}
+
+// ══════════════════════════════════════════════
+// ENEAGRAMA QUESTIONS
+// ══════════════════════════════════════════════
+const rawQuestions = [
+    {id:"q1_1",type:1,text:"Sinto-me bem em ambientes onde há organização e planejamento."},
+    {id:"q1_2",type:1,text:"Percebo facilmente como algo poderia ser mais perfeito."},
+    {id:"q1_3",type:1,text:"Normalmente, acho que tenho razão."},
+    {id:"q1_4",type:1,text:"Na minha infância, cobravam que eu fosse bom, me esforçasse e me comportasse bem."},
+    {id:"q1_5",type:1,text:"Esforço-me muito para corrigir minhas falhas."},
+    {id:"q1_6",type:1,text:"Odeio gastar mal o dinheiro."},
+    {id:"q1_7",type:1,text:"Frequentemente me chateio quando as coisas não caminham como deveriam."},
+    {id:"q1_8",type:1,text:"Sinto uma crítica interna muito forte."},
+    {id:"q1_9",type:1,text:"Com frequência me chateio comigo mesmo por não fazer melhor as coisas."},
+    {id:"q1_10",type:1,text:"Frequentemente, um defeito pequeno é suficiente para questionar todo um trabalho."},
+    {id:"q1_11",type:1,text:"Custa-me estar alegre e relaxar."},
+    {id:"q1_12",type:1,text:"Para mim é importante agir corretamente."},
+    {id:"q1_13",type:1,text:"As críticas dos outros me magoam muito."},
+    {id:"q1_14",type:1,text:"Sinto que me preocupo mais com as coisas do que as outras pessoas."},
+    {id:"q1_15",type:1,text:"Sinto a obrigação de ser honesto e honrado."},
+    {id:"q1_16",type:1,text:"Muitas vezes sinto-me puritano."},
+    {id:"q1_17",type:1,text:"Sinto-me irritado quando alguma coisa não está bem."},
+    {id:"q1_18",type:1,text:"Sinto que o tempo passa rápido demais e fica muita coisa por fazer — isso me angustia."},
+    {id:"q1_19",type:1,text:"Sinto necessidade de ser responsável pela maneira como administro meu tempo."},
+    {id:"q1_20",type:1,text:"Sinto tendência a ser uma pessoa escrupulosa."},
+    {id:"q1_21",type:1,text:"Identifico-me facilmente com os lutadores contra o mal."},
+    {id:"q1_22",type:1,text:"Tenho a sensação de que devo ser perfeito para que os outros me amem e me aprovem."},
+    {id:"q1_23",type:1,text:"Sinto-me quase obrigado a melhorar a mim mesmo e ao que faço."},
+    {id:"q1_24",type:1,text:"Com frequência me sinto frustrado porque nem eu nem os outros somos como deveríamos."},
+    {id:"q1_25",type:1,text:"Vejo tudo em termos de correto ou errado, bom ou mau."},
+    {id:"q2_1",type:2,text:"Fico ressentido quando as pessoas não retribuem o bem que lhes faço."},
+    {id:"q2_2",type:2,text:"Tenho facilidade de me adaptar a qualquer meio."},
+    {id:"q2_3",type:2,text:"Lembro da minha infância como algo triste e enfadonho."},
+    {id:"q2_4",type:2,text:"Na infância tive que 'comprar' o amor dos adultos através de bom comportamento."},
+    {id:"q2_5",type:2,text:"Muitas pessoas se sentem próximas de mim."},
+    {id:"q2_6",type:2,text:"Gosto de ajudar pessoas que vejo em dificuldade."},
+    {id:"q2_7",type:2,text:"Há muitas pessoas que dependem da minha ajuda e generosidade."},
+    {id:"q2_8",type:2,text:"Coloco mais interesse em servir os outros do que em qualquer outra coisa."},
+    {id:"q2_9",type:2,text:"Necessito ser importante na vida de outras pessoas."},
+    {id:"q2_10",type:2,text:"Gosto que os outros precisem de mim."},
+    {id:"q2_11",type:2,text:"Muitas vezes me sinto sobrecarregado pela dependência dos outros em relação a mim."},
+    {id:"q2_12",type:2,text:"Cumpro regularmente meus compromissos com os outros."},
+    {id:"q2_13",type:2,text:"Sinto-me quase obrigado a ajudar outras pessoas, mesmo sem elas me pedirem."},
+    {id:"q2_14",type:2,text:"Frequentemente as pessoas se aproximam pedindo que as conforte e aconselhe."},
+    {id:"q2_15",type:2,text:"O mais importante da vida é ser amado."},
+    {id:"q2_16",type:2,text:"Acho que não tenho muitas necessidades."},
+    {id:"q2_17",type:2,text:"Às vezes sinto que os outros não me valorizam pelo que faço por eles."},
+    {id:"q2_18",type:2,text:"Gosto de sentir-me próximo das pessoas."},
+    {id:"q2_19",type:2,text:"Às vezes me sinto vítima dos outros, como se me utilizassem."},
+    {id:"q2_20",type:2,text:"Comunico-me com meus amigos com mais frequência do que eles comigo."},
+    {id:"q2_21",type:2,text:"Preocupam-me muito os problemas emocionais."},
+    {id:"q2_22",type:2,text:"Acho que mereço estar em primeiro plano na vida de algumas pessoas, por tudo o que faço."},
+    {id:"q2_23",type:2,text:"Vejo-me como uma pessoa educadora."},
+    {id:"q2_24",type:2,text:"Quando tenho tempo livre, dedico-me frequentemente a ajudar os outros."},
+    {id:"q2_25",type:2,text:"Gosto de cuidar dos outros."},
+    {id:"q3_1",type:3,text:"Em criança era apreciado pelo que fazia."},
+    {id:"q3_2",type:3,text:"Vejo-me como uma pessoa dinâmica, otimista e capaz de resolver qualquer problema."},
+    {id:"q3_3",type:3,text:"Sinto necessidade de preencher a minha vida com muitas atividades."},
+    {id:"q3_4",type:3,text:"Preocupa-me muito a hipótese de não ser aceito pelos outros."},
+    {id:"q3_5",type:3,text:"Gosto que me elogiem."},
+    {id:"q3_6",type:3,text:"Para mim a palavra 'êxito' significa muito."},
+    {id:"q3_7",type:3,text:"Para mim é muito importante projetar uma imagem vitoriosa."},
+    {id:"q3_8",type:3,text:"Gosto de trabalhar em equipe e de ser um bom elemento dela."},
+    {id:"q3_9",type:3,text:"Identifico-me com a eficiência, a precisão e o profissionalismo."},
+    {id:"q3_10",type:3,text:"Parece-me natural ser capaz de organizar as coisas e terminá-las."},
+    {id:"q3_11",type:3,text:"Gosto de ter objetivos claros e saber em que ponto me encontro no caminho até eles."},
+    {id:"q3_12",type:3,text:"Gosto de gráficos e indicadores sobre meu desenvolvimento."},
+    {id:"q3_13",type:3,text:"As outras pessoas me invejam porque consigo fazer coisas."},
+    {id:"q3_14",type:3,text:"Gosto de agir."},
+    {id:"q3_15",type:3,text:"Em geral, prefiro estar implicado numa ação do que ficar observando."},
+    {id:"q3_16",type:3,text:"As primeiras impressões são muito importantes para mim."},
+    {id:"q3_17",type:3,text:"Para mim, não é problema tomar decisões."},
+    {id:"q3_18",type:3,text:"Para conseguir êxito, às vezes é preciso passar por cima das próprias normas."},
+    {id:"q3_19",type:3,text:"Quando olho para meu passado, recordo mais facilmente o que fiz de bom do que o que fiz de mau."},
+    {id:"q3_20",type:3,text:"Odeio quando me dizem que o que estou fazendo não caminha bem."},
+    {id:"q3_21",type:3,text:"Tenho tendência a ser uma pessoa positiva e empreendedora."},
+    {id:"q3_22",type:3,text:"Sinto-me bem como assessor de um projeto."},
+    {id:"q3_23",type:3,text:"Identifico-me tanto com meu trabalho que às vezes me esqueço de quem sou."},
+    {id:"q3_24",type:3,text:"Acredito que a aparência é importante."},
+    {id:"q3_25",type:3,text:"Acredito que é preciso ter sucesso em muitas coisas para que os outros me apreciem."},
+    {id:"q4_1",type:4,text:"Da minha infância, lembro de uma experiência dolorosa de perda ou abandono."},
+    {id:"q4_2",type:4,text:"Vejo-me como uma pessoa especial, diferente dos outros."},
+    {id:"q4_3",type:4,text:"Sinto ansiedade quando quero conseguir algo e perco o interesse quando o consigo."},
+    {id:"q4_4",type:4,text:"Facilmente sinto inveja e ciúme."},
+    {id:"q4_5",type:4,text:"Não gosto de coisas comuns, triviais, normais."},
+    {id:"q4_6",type:4,text:"Parece-me que os outros não compreendem meus sentimentos."},
+    {id:"q4_7",type:4,text:"A maioria das pessoas não aprecia a autêntica beleza da vida."},
+    {id:"q4_8",type:4,text:"Esforço-me por parecer simples e natural."},
+    {id:"q4_9",type:4,text:"Acho que a maioria das pessoas não tem sentimentos tão profundos quanto os meus."},
+    {id:"q4_10",type:4,text:"O simbolismo é algo que me atrai."},
+    {id:"q4_11",type:4,text:"Sinto uma nostalgia quase compulsiva do meu passado."},
+    {id:"q4_12",type:4,text:"Preocupo-me com o sofrimento, a perda e a morte."},
+    {id:"q4_13",type:4,text:"Gosto de fazer as coisas bem feitas e com classe."},
+    {id:"q4_14",type:4,text:"Gosto muito de teatro e crio fantasias como se estivesse em cena."},
+    {id:"q4_15",type:4,text:"As formas e o bom gosto são importantes para mim."},
+    {id:"q4_16",type:4,text:"Não gosto de passar por ser uma pessoa vulgar ou comum."},
+    {id:"q4_17",type:4,text:"O meu ambiente é muito importante para mim."},
+    {id:"q4_18",type:4,text:"Sinto que o fim dos relacionamentos me afeta mais do que as outras pessoas."},
+    {id:"q4_19",type:4,text:"Às vezes me assusta o fato de minha resposta sentimental não ser suficiente."},
+    {id:"q4_20",type:4,text:"Aproximo-me facilmente dos sentimentos de um grupo, perdendo o sentido de onde acabam os meus."},
+    {id:"q4_21",type:4,text:"As artes e a expressão artística são importantes para canalizar minhas emoções."},
+    {id:"q4_22",type:4,text:"Identifico-me com a figura do 'palhaço trágico', sorrindo através das lágrimas."},
+    {id:"q4_23",type:4,text:"Acusam-me de ser distante."},
+    {id:"q4_24",type:4,text:"Percebo muitos altos e baixos na minha vida: ou estou animado ou estou na 'fossa'."},
+    {id:"q4_25",type:4,text:"As pessoas me acusam de ser excessivamente dramático."},
+    {id:"q5_1",type:5,text:"Na infância as pessoas se intrometiam demais na minha vida."},
+    {id:"q5_2",type:5,text:"Sinto que na infância recebi pouco carinho e proximidade das pessoas."},
+    {id:"q5_3",type:5,text:"Gosto de ser independente dos outros."},
+    {id:"q5_4",type:5,text:"Não me sinto bem em ambientes que exigem muito relacionamento."},
+    {id:"q5_5",type:5,text:"Fico em baixo-astral em situações embaraçosas ou quando alguém me pergunta como me sinto."},
+    {id:"q5_6",type:5,text:"Mantenho-me com o que tenho e procuro guardar o que pode ser necessário um dia."},
+    {id:"q5_7",type:5,text:"Não sei muito bem como participar de conversas voltadas para o interior."},
+    {id:"q5_8",type:5,text:"Gosto de sintetizar e reunir ideias diferentes intelectualmente."},
+    {id:"q5_9",type:5,text:"Consigo guardar meus sentimentos só para mim."},
+    {id:"q5_10",type:5,text:"Custa-me alcançar ou pedir aquilo de que preciso."},
+    {id:"q5_11",type:5,text:"Preciso de muito espaço e de muito tempo só para mim."},
+    {id:"q5_12",type:5,text:"Sei deixar a iniciativa para os outros."},
+    {id:"q5_13",type:5,text:"Frequentemente me sinto por trás, observando os outros em vez de me envolver."},
+    {id:"q5_14",type:5,text:"Tenho a sensação de que sou mais calado que a maioria."},
+    {id:"q5_15",type:5,text:"As pessoas me perguntam frequentemente o que penso."},
+    {id:"q5_16",type:5,text:"Tenho tendência a ser solitário."},
+    {id:"q5_17",type:5,text:"Sinto tendência a ser mesquinho com meu tempo, dinheiro e energia."},
+    {id:"q5_18",type:5,text:"Diante de problemas, primeiro estudo por conta própria e depois discuto com os outros."},
+    {id:"q5_19",type:5,text:"Procuro resolver meus problemas pensando."},
+    {id:"q5_20",type:5,text:"Gosto de ver as coisas em perspectiva ampla. Se deixo algo de fora, me acuso de ser simplista."},
+    {id:"q5_21",type:5,text:"É muito fácil para mim tirar conclusões."},
+    {id:"q5_22",type:5,text:"Quando estou chateado, penso nos outros como 'loucos', 'idiotas' ou 'estúpidos'."},
+    {id:"q5_23",type:5,text:"Meu tom de voz é suave e frequentemente me pedem para falar mais alto. Isso me irrita."},
+    {id:"q5_24",type:5,text:"Tendo a ser mais receptor que doador."},
+    {id:"q5_25",type:5,text:"Chateia-me não receber o devido valor pelo meu trabalho."},
+    {id:"q6_1",type:6,text:"Na minha infância não havia autoridades bem definidas."},
+    {id:"q6_2",type:6,text:"Desde pequeno desconfiava de quem estava investido em qualquer autoridade."},
+    {id:"q6_3",type:6,text:"Do meu passado, lembro mais facilmente das coisas negativas do que dos sucessos."},
+    {id:"q6_4",type:6,text:"Sinto que sou uma pessoa tímida."},
+    {id:"q6_5",type:6,text:"Gosto de pertencer a um grupo e de trabalhar em equipe."},
+    {id:"q6_6",type:6,text:"Antes de decidir, obtenho todas as informações possíveis para estar preparado."},
+    {id:"q6_7",type:6,text:"Para mim é muito importante a lealdade ao grupo."},
+    {id:"q6_8",type:6,text:"Sinto muitas dúvidas."},
+    {id:"q6_9",type:6,text:"Basicamente sou uma pessoa moderada."},
+    {id:"q6_10",type:6,text:"Sem leis definidas, é difícil dizer o que as pessoas têm que fazer."},
+    {id:"q6_11",type:6,text:"Sei atuar com sentido de dever e responsabilidade."},
+    {id:"q6_12",type:6,text:"É muito difícil para mim ir contra o que foi estabelecido pela autoridade."},
+    {id:"q6_13",type:6,text:"Penso muito, pois preciso explorar exaustivamente as diversas opções."},
+    {id:"q6_14",type:6,text:"Pergunto-me frequentemente se tenho valor suficiente para fazer o que preciso fazer."},
+    {id:"q6_15",type:6,text:"Gosto de estar muito seguro antes de atuar."},
+    {id:"q6_16",type:6,text:"A prudência é uma atitude muito importante para mim."},
+    {id:"q6_17",type:6,text:"Com frequência avalio os outros quanto à possibilidade de serem uma ameaça para mim."},
+    {id:"q6_18",type:6,text:"Gosto que seja bem definido o que devo fazer."},
+    {id:"q6_19",type:6,text:"Sinto o perigo e a ameaça mais que os outros."},
+    {id:"q6_20",type:6,text:"Tenho tendência a dividir o mundo em grupos e me preocupo de que lado as pessoas estão."},
+    {id:"q6_21",type:6,text:"Tenho consciência das contradições e sou muito sensível a elas."},
+    {id:"q6_22",type:6,text:"Prefiro que as coisas tenham começo e fim estabelecidos."},
+    {id:"q6_23",type:6,text:"Com frequência me imagino no lugar de herói."},
+    {id:"q6_24",type:6,text:"Tenho a sensação de que estou lutando contra os meus medos."},
+    {id:"q6_25",type:6,text:"Sinto que me preocupo mais que os outros em defender a mim mesmo e minhas posições."},
+    {id:"q7_1",type:7,text:"Recordo a minha infância como uma etapa feliz."},
+    {id:"q7_2",type:7,text:"Vivo de maneira alegre e radiante."},
+    {id:"q7_3",type:7,text:"Entrego-me a muitos planos e diversos prazeres."},
+    {id:"q7_4",type:7,text:"Procuro manter meu alto-astral, buscando aventuras e experiências fortes."},
+    {id:"q7_5",type:7,text:"Gosto de manter abertas todas as opções."},
+    {id:"q7_6",type:7,text:"Frequentemente me descubro planejando o futuro."},
+    {id:"q7_7",type:7,text:"Consigo curtir quase tudo o que há na vida."},
+    {id:"q7_8",type:7,text:"Sou menos perspicaz que as outras pessoas a respeito das intenções delas."},
+    {id:"q7_9",type:7,text:"Gosto que os outros me vejam contente."},
+    {id:"q7_10",type:7,text:"Sei fixar-me no lado bom da vida e deixar de lado os aspectos negativos."},
+    {id:"q7_11",type:7,text:"As coisas sempre funcionam da melhor maneira possível."},
+    {id:"q7_12",type:7,text:"Gostaria que os outros estivessem sempre bem dispostos."},
+    {id:"q7_13",type:7,text:"Gosto de contar histórias."},
+    {id:"q7_14",type:7,text:"As pessoas acham que sou a 'alma' das reuniões."},
+    {id:"q7_15",type:7,text:"Gosto de quase tudo o que encontro."},
+    {id:"q7_16",type:7,text:"Minha teoria é que se algo é bom, mais é melhor."},
+    {id:"q7_17",type:7,text:"Vejo-me como uma pessoa brincalhona e infantil."},
+    {id:"q7_18",type:7,text:"Gosto de animar as pessoas."},
+    {id:"q7_19",type:7,text:"Gosto de considerar as implicações maiores dos fatos."},
+    {id:"q7_20",type:7,text:"Sei passar de uma coisa à outra em vez de aprofundar apenas uma."},
+    {id:"q7_21",type:7,text:"Não acredito que seja bom ficar triste por muito tempo."},
+    {id:"q7_22",type:7,text:"Gosto de fazer coisas 'bonitas'."},
+    {id:"q7_23",type:7,text:"Gosto de saborear a vida."},
+    {id:"q7_24",type:7,text:"Consigo ser muito entusiasta perante o futuro."},
+    {id:"q7_25",type:7,text:"Na maior parte do tempo evito me dedicar a problemas graves."},
+    {id:"q8_1",type:8,text:"Desde criança tive a impressão de que o mundo castiga quem é macio — por isso é importante ser duro."},
+    {id:"q8_2",type:8,text:"Na infância me incentivavam a ser forte, a não dar parte de fraco."},
+    {id:"q8_3",type:8,text:"Sinto prazer em quebrar regras."},
+    {id:"q8_4",type:8,text:"Costumo estabelecer contatos com as pessoas provocando-as."},
+    {id:"q8_5",type:8,text:"Não tenho medo de me confrontar com os outros e os ataco se me provocarem."},
+    {id:"q8_6",type:8,text:"Percebo facilmente onde reside o poder num grupo."},
+    {id:"q8_7",type:8,text:"Sinto-me muito bem mantendo o que quero e lutando por isso."},
+    {id:"q8_8",type:8,text:"Percebo facilmente o ponto fraco dos outros e os ataco se me provocarem."},
+    {id:"q8_9",type:8,text:"Sei como fazer as coisas."},
+    {id:"q8_10",type:8,text:"Sinto-me à vontade no exercício do poder."},
+    {id:"q8_11",type:8,text:"Vejo-me como uma pessoa direta e positiva."},
+    {id:"q8_12",type:8,text:"Acredito que sou uma pessoa do 'mundo'."},
+    {id:"q8_13",type:8,text:"Gosto de me movimentar, de espaço livre e de aventura."},
+    {id:"q8_14",type:8,text:"Tenho dificuldades para aceitar e expressar meu lado terno e suave."},
+    {id:"q8_15",type:8,text:"É fácil expressar minha insatisfação."},
+    {id:"q8_16",type:8,text:"Chateio-me facilmente."},
+    {id:"q8_17",type:8,text:"Acredito que sou um bom trabalhador."},
+    {id:"q8_18",type:8,text:"Para mim, a justiça e a injustiça são questões chave."},
+    {id:"q8_19",type:8,text:"Protejo os que estão sob minha autoridade ou jurisdição."},
+    {id:"q8_20",type:8,text:"Acredito que os outros criam seus próprios problemas."},
+    {id:"q8_21",type:8,text:"Em geral não me dedico muito à introspecção ou à autoanálise."},
+    {id:"q8_22",type:8,text:"Acredito que não sou conformista."},
+    {id:"q8_23",type:8,text:"Não gosto de estar isolado e fechado."},
+    {id:"q8_24",type:8,text:"Não gosto que me digam para me adaptar."},
+    {id:"q8_25",type:8,text:"Custa-me deixar que as coisas sigam seu curso."},
+    {id:"q9_1",type:9,text:"Percebo-me como uma pessoa indecisa e com dificuldade de tomar decisões."},
+    {id:"q9_2",type:9,text:"Na infância me sentia desconsiderado pelos outros, cujas necessidades pareciam mais importantes que as minhas."},
+    {id:"q9_3",type:9,text:"Sinto dificuldade em distinguir o essencial do secundário."},
+    {id:"q9_4",type:9,text:"Facilmente me sinto cansado."},
+    {id:"q9_5",type:9,text:"Não me esforço muito em mostrar aos outros meus talentos."},
+    {id:"q9_6",type:9,text:"Quase sempre estou calmo e tranquilo."},
+    {id:"q9_7",type:9,text:"Acho que a maioria das pessoas se preocupa em demasia com as coisas."},
+    {id:"q9_8",type:9,text:"Não vale a pena se preocupar muito com as coisas."},
+    {id:"q9_9",type:9,text:"Não recordo a última vez que dormi mal."},
+    {id:"q9_10",type:9,text:"Gosto de ter tempo para não fazer nada."},
+    {id:"q9_11",type:9,text:"Sou uma pessoa extremamente tratável."},
+    {id:"q9_12",type:9,text:"Não há nada tão urgente que não possa esperar até amanhã."},
+    {id:"q9_13",type:9,text:"Tenho a impressão de que a maioria das pessoas se parece muito."},
+    {id:"q9_14",type:9,text:"Em geral não sinto grande entusiasmo pelas coisas."},
+    {id:"q9_15",type:9,text:"Minha atitude é: 'Não esquenta'."},
+    {id:"q9_16",type:9,text:"Preciso de estímulo externo para me mover."},
+    {id:"q9_17",type:9,text:"Odeio gastar minha energia inutilmente."},
+    {id:"q9_18",type:9,text:"Odeio que me perturbem."},
+    {id:"q9_19",type:9,text:"Posso ser um árbitro imparcial porque para mim as duas partes são igualmente válidas."},
+    {id:"q9_20",type:9,text:"Sinto tendência a dar importância às coisas para que os outros se tranquilizem."},
+    {id:"q9_21",type:9,text:"Geralmente opto por aquilo que me oferece menos resistência."},
+    {id:"q9_22",type:9,text:"Prezo-me de ser uma pessoa estável."},
+    {id:"q9_23",type:9,text:"Custa-me escutar e prestar atenção."},
+    {id:"q9_24",type:9,text:"Não acredito que eu seja o único importante."},
+    {id:"q9_25",type:9,text:"Concordo com: 'Por que estar de pé quando se pode estar sentado e por que sentado quando se pode estar deitado?'"}
+];
+
+// ── STATE ──
+let userName = '', userVaga = '';
+let currentStep = 1;
+let userAnswers = new Set();
+
+// ── START ──
+function startEneagrama() {
+    userName = document.getElementById('e-nome').value.trim();
+    userVaga = document.getElementById('e-vaga').value.trim();
+    const err = document.getElementById('e-error');
+    if (!userName || !userVaga) { err.classList.add('show'); return; }
+    err.classList.remove('show');
+    userAnswers.clear();
+    currentStep = 1;
+    document.getElementById('t-nome').textContent = userName;
+    document.getElementById('t-vaga').textContent = userVaga;
+    showScreen('screen-test');
+    renderStep(1);
+}
+
+function renderStep(step) {
+    const container = document.getElementById('q-container');
+    container.innerHTML = '';
+    const qs = rawQuestions.filter(q => q.type === step);
+    qs.forEach(q => {
+        const checked = userAnswers.has(q.id);
+        const div = document.createElement('label');
+        div.className = 'q-item' + (checked ? ' checked' : '');
+        div.innerHTML = `
+            <input type="checkbox" class="custom-cb" ${checked ? 'checked' : ''} onchange="toggleAnswer('${q.id}', this.closest('label'))">
+            <span style="font-size:0.88rem;line-height:1.6;color:#374151;">${q.text}</span>
+        `;
+        container.appendChild(div);
+    });
+    document.getElementById('t-step').textContent = step;
+    document.getElementById('t-progress').style.width = ((step / 9) * 100) + '%';
+    document.getElementById('t-count').textContent = userAnswers.size + ' marcadas';
+    document.getElementById('btn-prev').style.display = step > 1 ? '' : 'none';
+    document.getElementById('btn-next').style.display = step < 9 ? '' : 'none';
+    document.getElementById('btn-finish').style.display = step === 9 ? '' : 'none';
+}
+
+function toggleAnswer(id, labelEl) {
+    if (userAnswers.has(id)) { userAnswers.delete(id); labelEl.classList.remove('checked'); }
+    else { userAnswers.add(id); labelEl.classList.add('checked'); }
+    document.getElementById('t-count').textContent = userAnswers.size + ' marcadas';
+}
+
+function nextStep() {
+    if (currentStep < 9) { currentStep++; renderStep(currentStep); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+function prevStep() {
+    if (currentStep > 1) { currentStep--; renderStep(currentStep); window.scrollTo({top:0,behavior:'smooth'}); }
+}
+
+function calculateResults() {
+    if (userAnswers.size === 0) { showToast('Selecione ao menos uma opção antes de concluir.'); return; }
+    let scores = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0};
+    userAnswers.forEach(id => {
+        const q = rawQuestions.find(r => r.id === id);
+        if (q) scores[q.type]++;
+    });
+    showResults(scores);
+}
+
+function showResults(scores) {
+    showScreen('screen-result');
+    document.getElementById('result-nome-h').textContent = userName;
+    document.getElementById('result-vaga-p').textContent = '🏢 ' + userVaga;
+
+    let maxScore = Math.max(...Object.values(scores));
+    let dominant = Object.keys(scores).filter(t => scores[t] === maxScore).map(Number);
+
+    // Dominant profiles
+    const dc = document.getElementById('dominant-container');
+    dc.innerHTML = '';
+
+    let shareNames = [];
+
+    dominant.forEach(type => {
+        const p = perfis[type];
+        const pi = perfis[p.integra];
+        const pd = perfis[p.desintegra];
+        shareNames.push(p.titulo);
+
+        const el = document.createElement('div');
+        el.innerHTML = `
+            <div class="profile-block" style="background:linear-gradient(135deg,${p.cor}dd,${p.cor}aa);">
+                <div class="profile-type-label">Perfil Dominante</div>
+                <h3>${p.titulo}</h3>
+                <p>${p.descricao}</p>
+                <div style="margin-top:16px;">
+                    <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;opacity:0.65;margin-bottom:4px;">Personalidades Similares</div>
+                    ${famousHtml(p.famosos, 'border-color:rgba(255,255,255,0.5);')}
+                </div>
+            </div>
+
+            <div class="dynamic-grid">
+                <div class="dynamic-card" style="background:#f0fdf4;border:1.5px solid #bbf7d0;">
+                    <h5 style="color:#15803d;">↑ Crescimento</h5>
+                    <p style="color:#166534;font-size:0.83rem;">Quando bem centralizado, você adquire qualidades do <strong>${pi.titulo}</strong>: ${p.integraTexto}</p>
+                    <div style="margin-top:12px;">
+                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#15803d;margin-bottom:6px;">Exemplos:</div>
+                        ${famousHtml(pi.famosos.slice(0,2))}
+                    </div>
+                </div>
+                <div class="dynamic-card" style="background:#fff1f2;border:1.5px solid #fecdd3;">
+                    <h5 style="color:#be123c;">↓ Estresse</h5>
+                    <p style="color:#9f1239;font-size:0.83rem;">Sob pressão, você tende para armadilhas do <strong>${pd.titulo}</strong>: ${p.desintegraTexto}</p>
+                    <div style="margin-top:12px;">
+                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#be123c;margin-bottom:6px;">Exemplos:</div>
+                        ${famousHtml(pd.famosos.slice(0,2))}
+                    </div>
+                </div>
+            </div>
+        `;
+        dc.appendChild(el);
+    });
+
+    // Chart
+    const cc = document.getElementById('chart-container');
+    cc.innerHTML = '';
+    for (let t = 1; t <= 9; t++) {
+        const pct = (scores[t] / 25) * 100;
+        const isDom = dominant.includes(t);
+        const row = document.createElement('div');
+        row.className = 'chart-row';
+        row.innerHTML = `
+            <div class="chart-label" style="color:${isDom ? perfis[t].cor : '#9ca3af'};font-weight:${isDom ? '700' : '500'};">Tipo ${t}</div>
+            <div class="chart-track">
+                <div class="chart-fill" style="width:0%;background:${isDom ? perfis[t].cor : '#e5e7eb'};" data-w="${pct}%"></div>
+            </div>
+            <div class="chart-score">${scores[t]}/25</div>
+        `;
+        cc.appendChild(row);
+    }
+    setTimeout(() => {
+        cc.querySelectorAll('.chart-fill').forEach(b => b.style.width = b.dataset.w);
+    }, 100);
+
+    // Share
+    const shareMsg = `🧠 Fiz o teste de Eneagrama no Conhecimento Pessoal!\n\nMeu perfil dominante: ${shareNames.join(' e ')}\n\nFaça o seu também! ✨`;
+    document.getElementById('share-section').innerHTML = `
+        <div class="share-card" style="margin-top:24px;">
+            <h4>🎉 Compartilhe seu resultado</h4>
+            <p style="margin:10px 0 0;font-family:monospace;font-size:0.78rem;background:rgba(255,255,255,0.08);padding:10px;border-radius:8px;">${shareMsg}</p>
+            <div class="share-actions">
+                <button class="share-btn" style="background:#25d366;color:white;" onclick="shareText(\`${shareMsg.replace(/`/g,'\\`')}\`)">📲 WhatsApp</button>
+                <button class="share-btn" style="background:#6366f1;color:white;" onclick="shareText(\`${shareMsg.replace(/`/g,'\\`')}\`)">🔗 Compartilhar</button>
+                <button class="share-btn" style="background:#334155;color:white;" onclick="copyText(\`${shareMsg.replace(/`/g,'\\`')}\`)">📋 Copiar</button>
+            </div>
+        </div>
+    `;
+}
+
+// ── Fallback PWA banner for browsers without beforeinstallprompt ──
+window.addEventListener('load', () => {
+    if (!window.matchMedia('(display-mode: standalone)').matches && !sessionStorage.getItem('pwa-dismissed')) {
+        setTimeout(() => {
+            if (!deferredPrompt) {
+                // Show minimal hint after 5s
+                document.getElementById('pwa-banner').style.display = 'flex';
+            }
+        }, 5000);
+    }
+});
+</script>
+</body>
+</html>
